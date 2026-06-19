@@ -12,6 +12,16 @@ export default function Home() {
     []
   );
 
+  const totalTasks = tasks.length;
+
+  const completedTasks =
+    tasks.filter(
+      (task) => task.completed
+    ).length;
+
+  const pendingTasks =
+    totalTasks - completedTasks;
+
   const addTask = (
     newTask: string,
     deadline: string
@@ -24,6 +34,25 @@ export default function Home() {
     };
 
     setTasks([...tasks, task]);
+  };
+
+  const updateTask = (
+    id: number,
+    updatedText: string,
+    updatedDeadline: string
+  ) => {
+    const updatedTasks = tasks.map(
+      (task) =>
+        task.id === id
+          ? {
+            ...task,
+            text: updatedText,
+            deadline: updatedDeadline,
+          }
+          : task
+    );
+
+    setTasks(updatedTasks);
   };
 
   const deleteTask = (id: number) => {
@@ -62,6 +91,7 @@ export default function Home() {
           tasks={tasks}
           onDeleteTask={deleteTask}
           onToggleTask={toggleTask}
+          onUpdateTask={updateTask}
         />
       </div>
     </main>
