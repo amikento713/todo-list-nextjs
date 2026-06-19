@@ -2,27 +2,55 @@
 
 import styles from "../styles/Todo.module.css";
 
-type TodoListProps = {
-  tasks: string[];
-  onDeleteTask: (index: number) => void;
-};
+export interface Todo {
+  id: number;
+  text: string;
+  completed: boolean;
+}
+
+interface TodoListProps {
+  tasks: Todo[];
+  onDeleteTask: (id: number) => void;
+  onToggleTask: (id: number) => void;
+}
 
 export default function TodoList({
   tasks,
   onDeleteTask,
+  onToggleTask,
 }: TodoListProps) {
   return (
     <div className={styles.list}>
-      {tasks.map((task, index) => (
+      {tasks.map((task) => (
         <div
-          key={index}
+          key={task.id}
           className={styles.item}
         >
-          <span>{task}</span>
+          <div className={styles.taskContent}>
+            <input
+              type="checkbox"
+              checked={task.completed}
+              onChange={() =>
+                onToggleTask(task.id)
+              }
+            />
+
+            <span
+              className={
+                task.completed
+                  ? styles.completed
+                  : ""
+              }
+            >
+              {task.text}
+            </span>
+          </div>
 
           <button
             className={styles.deleteButton}
-            onClick={() => onDeleteTask(index)}
+            onClick={() =>
+              onDeleteTask(task.id)
+            }
           >
             Delete
           </button>

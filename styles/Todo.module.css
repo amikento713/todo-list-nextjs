@@ -38,6 +38,17 @@
   margin-bottom: 8px;
 }
 
+.taskContent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.completed {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
 .deleteButton {
   padding: 6px 12px;
   cursor: pointer;

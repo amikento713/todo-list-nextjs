@@ -2,19 +2,44 @@
 
 import { useState } from "react";
 import TodoForm from "../components/TodoForm";
-import TodoList from "../components/TodoList";
+import TodoList, {
+  Todo,
+} from "../components/TodoList";
 import styles from "../styles/Todo.module.css";
 
 export default function Home() {
-  const [tasks, setTasks] = useState<string[]>([]);
+  const [tasks, setTasks] = useState<Todo[]>(
+    []
+  );
 
   const addTask = (newTask: string) => {
-    setTasks([...tasks, newTask]);
+    const task: Todo = {
+      id: Date.now(),
+      text: newTask,
+      completed: false,
+    };
+
+    setTasks([...tasks, task]);
   };
 
-  const deleteTask = (indexToDelete: number) => {
+  const deleteTask = (id: number) => {
     const updatedTasks = tasks.filter(
-      (_, index) => index !== indexToDelete
+      (task) => task.id !== id
+    );
+
+    setTasks(updatedTasks);
+  };
+
+  const toggleTask = (id: number) => {
+    const updatedTasks = tasks.map(
+      (task) =>
+        task.id === id
+          ? {
+              ...task,
+              completed:
+                !task.completed,
+            }
+          : task
     );
 
     setTasks(updatedTasks);
@@ -31,6 +56,7 @@ export default function Home() {
       <TodoList
         tasks={tasks}
         onDeleteTask={deleteTask}
+        onToggleTask={toggleTask}
       />
     </main>
   );
