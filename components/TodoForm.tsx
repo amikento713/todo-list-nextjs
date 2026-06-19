@@ -3,46 +3,78 @@
 import { useState } from "react";
 import styles from "../styles/Todo.module.css";
 
-type TodoFormProps = {
-  onAddTask: (task: string) => void;
-};
+interface TodoFormProps {
+    onAddTask: (
+        task: string,
+        deadline: string
+    ) => void;
+}
 
 export default function TodoForm({
-  onAddTask,
+    onAddTask,
 }: TodoFormProps) {
-  const [task, setTask] = useState("");
+    const [task, setTask] = useState("");
 
-  const handleSubmit = (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
-    e.preventDefault();
+    const getTomorrowDate = () => {
+        const tomorrow = new Date();
 
-    if (!task.trim()) return;
+        tomorrow.setDate(
+            tomorrow.getDate() + 1
+        );
 
-    onAddTask(task);
+        return tomorrow
+            .toISOString()
+            .split("T")[0];
+    };
 
-    setTask("");
-  };
+    const [deadline, setDeadline] =
+        useState(getTomorrowDate());
 
-  return (
-    <form
-      className={styles.form}
-      onSubmit={handleSubmit}
-    >
-      <input
-        type="text"
-        placeholder="Enter a task"
-        value={task}
-        onChange={(e) => setTask(e.target.value)}
-        className={styles.input}
-      />
+    const handleSubmit = (
+        e: React.FormEvent<HTMLFormElement>
+    ) => {
+        e.preventDefault();
 
-      <button
-        type="submit"
-        className={styles.button}
-      >
-        Add
-      </button>
-    </form>
-  );
+        if (!task.trim()) return;
+
+        onAddTask(task, deadline);
+
+        setTask("");
+
+        // Reset deadline to tomorrow
+        setDeadline(getTomorrowDate());
+    };
+
+    return (
+        <form
+            className={styles.form}
+            onSubmit={handleSubmit}
+        >
+            <input
+                type="text"
+                placeholder="Enter a task"
+                value={task}
+                onChange={(e) =>
+                    setTask(e.target.value)
+                }
+                className={styles.input}
+            />
+
+            <input
+                type="date"
+                value={deadline}
+                onChange={(e) =>
+                    setDeadline(e.target.value)
+                }
+                className={styles.dateInput}
+            />
+
+            <button
+                type="submit"
+                className={styles.button}
+            >
+                Add
+            </button>
+        </form>
+    );
 }

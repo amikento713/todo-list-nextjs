@@ -12,11 +12,15 @@ export default function Home() {
     []
   );
 
-  const addTask = (newTask: string) => {
+  const addTask = (
+    newTask: string,
+    deadline: string
+  ) => {
     const task: Todo = {
       id: Date.now(),
       text: newTask,
       completed: false,
+      deadline,
     };
 
     setTasks([...tasks, task]);

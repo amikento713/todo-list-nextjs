@@ -6,6 +6,7 @@ export interface Todo {
   id: number;
   text: string;
   completed: boolean;
+  deadline: string;
 }
 
 interface TodoListProps {
@@ -19,43 +20,75 @@ export default function TodoList({
   onDeleteTask,
   onToggleTask,
 }: TodoListProps) {
+  const today = new Date();
+
   return (
     <div className={styles.list}>
-      {tasks.map((task) => (
-        <div
-          key={task.id}
-          className={styles.item}
-        >
-          <div className={styles.taskContent}>
-            <input
-              type="checkbox"
-              checked={task.completed}
-              onChange={() =>
-                onToggleTask(task.id)
-              }
-            />
+      {tasks.map((task) => {
+        const isOverdue =
+          task.deadline &&
+          !task.completed &&
+          new Date(task.deadline) < today;
 
-            <span
+        return (
+          <div
+            key={task.id}
+            className={styles.item}
+          >
+            <div
+              className={styles.taskContent}
+            >
+              <input
+                type="checkbox"
+                checked={task.completed}
+                onChange={() =>
+                  onToggleTask(task.id)
+                }
+              />
+
+              <div>
+                <div
+                  className={
+                    task.completed
+                      ? styles.completed
+                      : ""
+                  }
+                >
+                  {task.text}
+                </div>
+
+                {task.deadline && (
+                  <div
+                    className={
+                      isOverdue
+                        ? styles.overdue
+                        : styles.deadline
+                    }
+                  >
+                    Deadline:
+                    {" "}
+                    {task.deadline}
+
+                    {isOverdue &&
+                      " (Overdue)"}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button
               className={
-                task.completed
-                  ? styles.completed
-                  : ""
+                styles.deleteButton
+              }
+              onClick={() =>
+                onDeleteTask(task.id)
               }
             >
-              {task.text}
-            </span>
+              Delete
+            </button>
           </div>
-
-          <button
-            className={styles.deleteButton}
-            onClick={() =>
-              onDeleteTask(task.id)
-            }
-          >
-            Delete
-          </button>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
