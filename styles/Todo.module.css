@@ -29,7 +29,16 @@
 }
 
 .item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
   padding: 10px;
   border: 1px solid #ddd;
   margin-bottom: 8px;
+}
+
+.deleteButton {
+  padding: 6px 12px;
+  cursor: pointer;
 }

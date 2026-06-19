@@ -12,6 +12,14 @@ export default function Home() {
     setTasks([...tasks, newTask]);
   };
 
+  const deleteTask = (indexToDelete: number) => {
+    const updatedTasks = tasks.filter(
+      (_, index) => index !== indexToDelete
+    );
+
+    setTasks(updatedTasks);
+  };
+
   return (
     <main className={styles.container}>
       <h1 className={styles.title}>
@@ -20,7 +28,10 @@ export default function Home() {
 
       <TodoForm onAddTask={addTask} />
 
-      <TodoList tasks={tasks} />
+      <TodoList
+        tasks={tasks}
+        onDeleteTask={deleteTask}
+      />
     </main>
   );
 }

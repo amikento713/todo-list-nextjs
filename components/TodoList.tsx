@@ -4,10 +4,12 @@ import styles from "../styles/Todo.module.css";
 
 type TodoListProps = {
   tasks: string[];
+  onDeleteTask: (index: number) => void;
 };
 
 export default function TodoList({
   tasks,
+  onDeleteTask,
 }: TodoListProps) {
   return (
     <div className={styles.list}>
@@ -16,7 +18,14 @@ export default function TodoList({
           key={index}
           className={styles.item}
         >
-          {task}
+          <span>{task}</span>
+
+          <button
+            className={styles.deleteButton}
+            onClick={() => onDeleteTask(index)}
+          >
+            Delete
+          </button>
         </div>
       ))}
     </div>
