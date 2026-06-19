@@ -35,10 +35,10 @@ export default function Home() {
       (task) =>
         task.id === id
           ? {
-              ...task,
-              completed:
-                !task.completed,
-            }
+            ...task,
+            completed:
+              !task.completed,
+          }
           : task
     );
 
@@ -47,17 +47,19 @@ export default function Home() {
 
   return (
     <main className={styles.container}>
-      <h1 className={styles.title}>
-        Todo List
-      </h1>
+      <div className={styles.card}>
+        <h1 className={styles.title}>
+          Todo List
+        </h1>
 
-      <TodoForm onAddTask={addTask} />
+        <TodoForm onAddTask={addTask} />
 
-      <TodoList
-        tasks={tasks}
-        onDeleteTask={deleteTask}
-        onToggleTask={toggleTask}
-      />
+        <TodoList
+          tasks={tasks}
+          onDeleteTask={deleteTask}
+          onToggleTask={toggleTask}
+        />
+      </div>
     </main>
   );
 }
