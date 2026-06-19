@@ -55,7 +55,8 @@ export default function TodoList({
                 return (
                     <div
                         key={task.id}
-                        className={styles.item}
+                        className={`${styles.taskCard} ${isOverdue ? styles.overdueCard : ""
+                            }`}
                     >
                         {editingId === task.id ? (
                             <div className={styles.editContainer}>
@@ -72,7 +73,9 @@ export default function TodoList({
                                     type="date"
                                     value={editDeadline}
                                     onChange={(e) =>
-                                        setEditDeadline(e.target.value)
+                                        setEditDeadline(
+                                            e.target.value
+                                        )
                                     }
                                     className={styles.editDateInput}
                                 />
@@ -105,9 +108,53 @@ export default function TodoList({
                             </div>
                         ) : (
                             <>
-                                <div
-                                    className={styles.taskContent}
-                                >
+                                <div className={styles.taskHeader}>
+                                    <div>
+                                        <div
+                                            className={
+                                                task.completed
+                                                    ? styles.completed
+                                                    : styles.taskName
+                                            }
+                                        >
+                                            {task.text}
+                                        </div>
+
+                                        <div
+                                            className={
+                                                styles.taskInfo
+                                            }
+                                        >
+                                            Status:
+                                            <span
+                                                className={
+                                                    task.completed
+                                                        ? styles.statusCompleted
+                                                        : styles.statusPending
+                                                }
+                                            >
+                                                {" "}
+                                                {task.completed
+                                                    ? "Completed"
+                                                    : "Pending"}
+                                            </span>
+                                        </div>
+
+                                        <div
+                                            className={
+                                                isOverdue
+                                                    ? styles.overdueText
+                                                    : styles.taskInfo
+                                            }
+                                        >
+                                            Deadline:
+                                            {" "}
+                                            {task.deadline}
+                                            {isOverdue &&
+                                                " (Overdue)"}
+                                        </div>
+                                    </div>
+
                                     <input
                                         type="checkbox"
                                         checked={task.completed}
@@ -115,38 +162,11 @@ export default function TodoList({
                                             onToggleTask(task.id)
                                         }
                                     />
-
-                                    <div>
-                                        <div
-                                            className={
-                                                task.completed
-                                                    ? styles.completed
-                                                    : ""
-                                            }
-                                        >
-                                            {task.text}
-                                        </div>
-
-                                        {task.deadline && (
-                                            <div
-                                                className={
-                                                    isOverdue
-                                                        ? styles.overdue
-                                                        : styles.deadline
-                                                }
-                                            >
-                                                Deadline:
-                                                {" "}
-                                                {task.deadline}
-
-                                                {isOverdue &&
-                                                    " (Overdue)"}
-                                            </div>
-                                        )}
-                                    </div>
                                 </div>
 
-                                <div className={styles.actionButtons}>
+                                <div
+                                    className={styles.actionButtons}
+                                >
                                     <button
                                         className={styles.editButton}
                                         onClick={() =>
@@ -157,7 +177,9 @@ export default function TodoList({
                                     </button>
 
                                     <button
-                                        className={styles.deleteButton}
+                                        className={
+                                            styles.deleteButton
+                                        }
                                         onClick={() =>
                                             onDeleteTask(task.id)
                                         }
@@ -167,7 +189,6 @@ export default function TodoList({
                                 </div>
                             </>
                         )}
-
                     </div>
                 );
             })}

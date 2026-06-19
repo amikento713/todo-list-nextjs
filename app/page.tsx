@@ -85,6 +85,35 @@ export default function Home() {
           Todo List
         </h1>
 
+        <div className={styles.statusPanel}>
+          <div className={styles.statCard}>
+            <div className={styles.statNumber}>
+              {totalTasks}
+            </div>
+            <div className={styles.statLabel}>
+              Total
+            </div>
+          </div>
+
+          <div className={styles.statCard}>
+            <div className={styles.statNumber}>
+              {completedTasks}
+            </div>
+            <div className={styles.statLabel}>
+              Completed
+            </div>
+          </div>
+
+          <div className={styles.statCard}>
+            <div className={styles.statNumber}>
+              {pendingTasks}
+            </div>
+            <div className={styles.statLabel}>
+              Pending
+            </div>
+          </div>
+
+        </div>
         <TodoForm onAddTask={addTask} />
 
         <TodoList
