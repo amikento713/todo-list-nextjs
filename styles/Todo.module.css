@@ -340,3 +340,34 @@
         grid-template-columns: 1fr;
     }
 }
+
+.statCard {
+  background: white;
+  border: none;
+  cursor: pointer;
+
+  padding: 16px;
+  border-radius: 12px;
+
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.activeStatCard {
+  border: 2px solid #3b82f6;
+
+  background-color: #eff6ff;
+}
+
+.filterTitle {
+  margin-bottom: 16px;
+  color: #374151;
+}

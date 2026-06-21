@@ -155,7 +155,15 @@ export default function Home() {
           </button>
         </div>
         <TodoForm onAddTask={addTask} />
+        <h3 className={styles.filterTitle}>
+          {filter === "all" && "All Tasks"}
 
+          {filter === "completed" &&
+            "Completed Tasks"}
+
+          {filter === "pending" &&
+            "Pending Tasks"}
+        </h3>
         <TodoList
           tasks={filteredTasks}
           onDeleteTask={deleteTask}
