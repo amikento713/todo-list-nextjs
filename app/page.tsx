@@ -22,6 +22,22 @@ export default function Home() {
   const pendingTasks =
     totalTasks - completedTasks;
 
+  const [filter, setFilter] = useState<
+    "all" | "completed" | "pending"
+  >("all");
+
+  const filteredTasks = tasks.filter((task) => {
+    if (filter === "completed") {
+      return task.completed;
+    }
+
+    if (filter === "pending") {
+      return !task.completed;
+    }
+
+    return true;
+  });
+
   const addTask = (
     newTask: string,
     deadline: string
@@ -85,39 +101,63 @@ export default function Home() {
           Todo List
         </h1>
 
-        <div className={styles.statusPanel}>
-          <div className={styles.statCard}>
+        <div className={styles.statsContainer}>
+          <button
+            className={`${styles.statCard} ${filter === "all"
+              ? styles.activeStatCard
+              : ""
+              }`}
+            onClick={() => setFilter("all")}
+          >
             <div className={styles.statNumber}>
               {totalTasks}
             </div>
+
             <div className={styles.statLabel}>
               Total
             </div>
-          </div>
+          </button>
 
-          <div className={styles.statCard}>
+          <button
+            className={`${styles.statCard} ${filter === "completed"
+              ? styles.activeStatCard
+              : ""
+              }`}
+            onClick={() =>
+              setFilter("completed")
+            }
+          >
             <div className={styles.statNumber}>
               {completedTasks}
             </div>
+
             <div className={styles.statLabel}>
               Completed
             </div>
-          </div>
+          </button>
 
-          <div className={styles.statCard}>
+          <button
+            className={`${styles.statCard} ${filter === "pending"
+              ? styles.activeStatCard
+              : ""
+              }`}
+            onClick={() =>
+              setFilter("pending")
+            }
+          >
             <div className={styles.statNumber}>
               {pendingTasks}
             </div>
+
             <div className={styles.statLabel}>
               Pending
             </div>
-          </div>
-
+          </button>
         </div>
         <TodoForm onAddTask={addTask} />
 
         <TodoList
-          tasks={tasks}
+          tasks={filteredTasks}
           onDeleteTask={deleteTask}
           onToggleTask={toggleTask}
           onUpdateTask={updateTask}
