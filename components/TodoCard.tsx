@@ -12,13 +12,9 @@ import BookActions from "./BookActions";
 interface TodoCardProps {
   task: Task;
 
-  onDeleteTask: (
-    id: number
-  ) => void;
+  onDeleteTask: (id: number) => void;
 
-  onToggleTask: (
-    id: number
-  ) => void;
+  onToggleTask: (id: number) => void;
 
   onUpdateTask: (
     id: number,
@@ -26,13 +22,9 @@ interface TodoCardProps {
     deadline: string
   ) => void;
 
-  onRemoveBook: (
-    id: number
-  ) => void;
+  onRemoveBook: (id: number) => void;
 
-  onPreview: (
-    url: string
-  ) => void;
+  onPreview: (url: string) => void;
 }
 
 export default function TodoCard({
@@ -56,37 +48,46 @@ export default function TodoCard({
   const [editText, setEditText] =
     useState(task.text);
 
-  const [
-    editDeadline,
-    setEditDeadline,
-  ] = useState(task.deadline);
+  const [editDeadline, setEditDeadline] =
+    useState(task.deadline);
 
   return (
     <div
-      className={`${styles.taskCard} ${isOverdue
-        ? styles.overdueCard
-        : ""
-        }`}
+      className={`${styles.taskCard} ${
+        isOverdue
+          ? styles.overdueCard
+          : ""
+      }`}
     >
       {isEditing ? (
         <EditTaskForm
           text={editText}
           deadline={editDeadline}
           onTextChange={setEditText}
-          onDeadlineChange={setEditDeadline}
+          onDeadlineChange={
+            setEditDeadline
+          }
           onSave={() => {
             onUpdateTask(
               task.id,
               editText,
               editDeadline
             );
+
             setIsEditing(false);
           }}
-          onCancel={() => setIsEditing(false)}
+          onCancel={() =>
+            setIsEditing(false)
+          }
         />
       ) : (
         <>
-          <div className={styles.taskDetails}>
+          {/* Header */}
+          <div
+            className={
+              styles.cardHeader
+            }
+          >
             <div
               className={
                 task.completed
@@ -97,12 +98,61 @@ export default function TodoCard({
               {task.text}
             </div>
 
-            <div className={styles.taskInfo}>
+            <div
+              className={
+                styles.headerActions
+              }
+            >
+              <button
+                className={
+                  styles.iconButton
+                }
+                onClick={() =>
+                  setIsEditing(true)
+                }
+                title="Edit Task"
+              >
+                ✏️
+              </button>
+
+              <button
+                className={`${styles.iconButton} ${styles.deleteIcon}`}
+                onClick={() =>
+                  onDeleteTask(
+                    task.id
+                  )
+                }
+                title="Delete Task"
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          {/* Details */}
+          <div
+            className={
+              styles.taskDetails
+            }
+          >
+            <div
+              className={
+                styles.taskInfo
+              }
+            >
               Status:
               {" "}
-              {task.completed
-                ? "Completed"
-                : "Pending"}
+              <span
+                className={
+                  task.completed
+                    ? styles.statusCompleted
+                    : styles.statusPending
+                }
+              >
+                {task.completed
+                  ? "Completed"
+                  : "Pending"}
+              </span>
             </div>
 
             <div
@@ -115,17 +165,29 @@ export default function TodoCard({
               Deadline:
               {" "}
               {task.deadline}
+
+              {isOverdue &&
+                " (Overdue)"}
             </div>
 
             {task.book && (
-              <div className={styles.bookInfo}>
+              <div
+                className={
+                  styles.bookInfo
+                }
+              >
                 📕{" "}
                 {task.book.name}
               </div>
             )}
           </div>
 
-          <div className={styles.checkboxRow}>
+          {/* Complete Checkbox */}
+          <div
+            className={
+              styles.checkboxRow
+            }
+          >
             <label>
               <input
                 type="checkbox"
@@ -143,30 +205,17 @@ export default function TodoCard({
             </label>
           </div>
 
+          {/* Book Actions */}
           {task.book && (
             <BookActions
               taskId={task.id}
               book={task.book}
               onPreview={onPreview}
-              onRemoveBook={onRemoveBook}
+              onRemoveBook={
+                onRemoveBook
+              }
             />
           )}
-
-          <div className={styles.actionButtons}>
-            <button
-              className={styles.editButton}
-              onClick={() => setIsEditing(true)}
-            >
-              Edit
-            </button>
-
-            <button
-              className={styles.deleteButton}
-              onClick={() => onDeleteTask(task.id)}
-            >
-              Delete
-            </button>
-          </div>
         </>
       )}
     </div>
