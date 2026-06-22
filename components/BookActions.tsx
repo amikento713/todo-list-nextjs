@@ -7,45 +7,23 @@ interface BookActionsProps {
   taskId: number;
   book: Book;
   onPreview: (url: string) => void;
-  onRemoveBook: (
-    taskId: number
-  ) => void;
 }
 
 export default function BookActions({
   taskId,
   book,
   onPreview,
-  onRemoveBook,
 }: BookActionsProps) {
   return (
     <div className={styles.bookButtons}>
       <button
-        className={`${styles.bookButton} ${styles.readButton}`}
-        onClick={() =>
-          window.open(book.url, "_blank")
-        }
-      >
-        📖 Read
-      </button>
-
-      <button
         className={`${styles.bookButton} ${styles.previewButton}`}
-        onClick={() =>
-          onPreview(book.url)
-        }
-      >
-        👀 Preview
-      </button>
-
+        onClick={() => onPreview(book.url)}
+      >👀</button>
       <button
-        className={`${styles.bookButton} ${styles.removeBookButton}`}
-        onClick={() =>
-          onRemoveBook(taskId)
-        }
-      >
-        🗑 Remove
-      </button>
+        className={`${styles.bookButton} ${styles.readButton}`}
+        onClick={() => window.open(book.url, "_blank")}
+      >📖</button>
     </div>
   );
 }

@@ -53,11 +53,10 @@ export default function TodoCard({
 
   return (
     <div
-      className={`${styles.taskCard} ${
-        isOverdue
-          ? styles.overdueCard
-          : ""
-      }`}
+      className={`${styles.taskCard} ${isOverdue
+        ? styles.overdueCard
+        : ""
+        }`}
     >
       {isEditing ? (
         <EditTaskForm
@@ -171,14 +170,19 @@ export default function TodoCard({
             </div>
 
             {task.book && (
-              <div
-                className={
-                  styles.bookInfo
-                }
-              >
-                📕{" "}
-                {task.book.name}
-              </div>
+              <>
+                <div className={styles.bookPart}>
+                  <div className={styles.bookInfo}>
+                    📕{" "}
+                    {task.book.name}
+                  </div>
+                  <BookActions
+                    taskId={task.id}
+                    book={task.book}
+                    onPreview={onPreview}
+                  />
+                </div>
+              </>
             )}
           </div>
 
@@ -191,31 +195,13 @@ export default function TodoCard({
             <label>
               <input
                 type="checkbox"
-                checked={
-                  task.completed
-                }
-                onChange={() =>
-                  onToggleTask(
-                    task.id
-                  )
-                }
+                checked={task.completed}
+                onChange={() => onToggleTask(task.id)}
               />
               {" "}
               Complete
             </label>
           </div>
-
-          {/* Book Actions */}
-          {task.book && (
-            <BookActions
-              taskId={task.id}
-              book={task.book}
-              onPreview={onPreview}
-              onRemoveBook={
-                onRemoveBook
-              }
-            />
-          )}
         </>
       )}
     </div>

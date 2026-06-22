@@ -343,12 +343,6 @@
     margin-top: 16px;
 }
 
-.editButton,
-.deleteButton,
-.bookButton {
-    min-width: 100px;
-}
-
 .statusPanel {
     display: flex;
     width: 100%;
@@ -398,7 +392,6 @@
 
 .bookButtons {
     display: flex;
-    gap: 10px;
     margin-top: 12px;
     margin-bottom: 12px;
     flex-wrap: wrap;
@@ -406,7 +399,7 @@
 
 .bookButton {
     border: none;
-    border-radius: 8px;
+    border-radius: 16px;
 
     padding: 10px 16px;
 
@@ -555,21 +548,12 @@
 .bookInfo {
     display: inline-flex;
     align-items: center;
-
-    gap: 6px;
-
     padding: 8px 12px;
-
     border-radius: 999px;
-
-    background: #eff6ff;
-
-    color: #1d4ed8;
-
+    background: transparent;
+    border: 2px solid #e5e7eb;
     font-size: 14px;
     font-weight: 500;
-
-    margin-top: 8px;
 }
 
 .checkboxRow {
@@ -577,7 +561,7 @@
 }
 
 .readButton {
-    background: #2563eb;
+    background: transparent;
     color: white;
 }
 
@@ -586,21 +570,12 @@
 }
 
 .previewButton {
-    background: #10b981;
+    background: transparent;
     color: white;
 }
 
 .previewButton:hover {
     background: #059669;
-}
-
-.removeBookButton {
-    background: #ef4444;
-    color: white;
-}
-
-.removeBookButton:hover {
-    background: #dc2626;
 }
 
 .cardHeader {
@@ -645,4 +620,9 @@
 
 .deleteIcon:hover {
   background: #fecaca;
+}
+
+.bookPart {
+    display: flex;
+    align-items: center;
 }

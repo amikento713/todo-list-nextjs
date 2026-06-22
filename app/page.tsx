@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TodoForm from "../components/TodoForm";
 import TodoList from "../components/TodoList";
 import { Task } from "../types/task";
 import styles from "../styles/Todo.module.css";
+import { taskService } from "../services/taskService";
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>(
-    []
-  );
+  const [tasks, setTasks] = useState<Task[]>([]);
 
   const totalTasks = tasks.length;
 
@@ -18,8 +17,60 @@ export default function Home() {
       (task) => task.completed
     ).length;
 
-  const pendingTasks =
-    totalTasks - completedTasks;
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  const loadTasks = async () => {
+    const data = await taskService.getTasks();
+    setTasks(data);
+  };
+
+  const createTask = async (task: Task) => {
+    await taskService.createTask(task);
+    const updatedTasks = await taskService.getTasks();
+    setTasks([...updatedTasks]);
+  };
+
+  const deleteTask = async (id: number) => {
+    await taskService.deleteTask(id);
+    const updatedTasks = await taskService.getTasks();
+    setTasks([...updatedTasks]);
+  };
+
+  const toggleTask = async (id: number) => {
+    const task = tasks.find((t) => t.id === id);
+
+    if (!task) return;
+    await taskService.updateTask({ ...task, completed: !task.completed, });
+    const updatedTasks = await taskService.getTasks();
+    setTasks([...updatedTasks]);
+  };
+
+  const updateTask = async (
+    id: number,
+    text: string,
+    deadline: string
+  ) => {
+    const task = tasks.find((t) => t.id === id);
+
+    if (!task) return;
+    await taskService.updateTask({ ...task, text, deadline, });
+    const updatedTasks = await taskService.getTasks();
+    setTasks([...updatedTasks]);
+  };
+
+  const removeBook = async (id: number) => {
+    const task = tasks.find((t) => t.id === id);
+
+    if (!task) return;
+    await taskService.updateTask({...task, book: undefined,});
+
+    const updatedTasks = await taskService.getTasks();
+    setTasks([...updatedTasks]);
+  };
+
+  const pendingTasks = totalTasks - completedTasks;
 
   const [filter, setFilter] = useState<
     "all" | "completed" | "pending"
@@ -37,7 +88,7 @@ export default function Home() {
     return true;
   });
 
-  const addTask = (
+  const addTask = async (
     newTask: string,
     deadline: string,
     selectedBook: File | null
@@ -61,65 +112,9 @@ export default function Home() {
       book,
     };
 
-    setTasks([...tasks, task]);
-  };
-
-  const updateTask = (
-    id: number,
-    updatedText: string,
-    updatedDeadline: string
-  ) => {
-    const updatedTasks = tasks.map(
-      (task) =>
-        task.id === id
-          ? {
-            ...task,
-            text: updatedText,
-            deadline: updatedDeadline,
-          }
-          : task
-    );
-
-    setTasks(updatedTasks);
-  };
-
-  const deleteTask = (id: number) => {
-    const updatedTasks = tasks.filter(
-      (task) => task.id !== id
-    );
-
-    setTasks(updatedTasks);
-  };
-
-  const toggleTask = (id: number) => {
-    const updatedTasks = tasks.map(
-      (task) =>
-        task.id === id
-          ? {
-            ...task,
-            completed:
-              !task.completed,
-          }
-          : task
-    );
-
-    setTasks(updatedTasks);
-  };
-
-  const removeBook = (
-    taskId: number
-  ) => {
-    const updatedTasks = tasks.map(
-      (task) =>
-        task.id === taskId
-          ? {
-            ...task,
-            book: undefined,
-          }
-          : task
-    );
-
-    setTasks(updatedTasks);
+    await taskService.createTask(task);
+    const updatedTasks = await taskService.getTasks();
+    setTasks([...updatedTasks]);
   };
 
   return (
