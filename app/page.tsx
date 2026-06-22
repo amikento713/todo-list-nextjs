@@ -9,6 +9,8 @@ import { taskService } from "../services/taskService";
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const totalTasks = tasks.length;
 
@@ -22,29 +24,69 @@ export default function Home() {
   }, []);
 
   const loadTasks = async () => {
-    const data = await taskService.getTasks();
-    setTasks(data);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await taskService.getTasks();
+      setTasks(data);
+    } catch (err) {
+      console.error(err);
+      setError((err as Error)?.message || "Failed to load tasks");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const createTask = async (task: Task) => {
-    await taskService.createTask(task);
-    const updatedTasks = await taskService.getTasks();
-    setTasks([...updatedTasks]);
+    setLoading(true);
+    setError(null);
+
+    try {
+      await taskService.createTask(task);
+      const updatedTasks = await taskService.getTasks();
+      setTasks([...updatedTasks]);
+    } catch (err) {
+      console.error(err);
+      setError((err as Error)?.message || "Failed to create task");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const deleteTask = async (id: number) => {
-    await taskService.deleteTask(id);
-    const updatedTasks = await taskService.getTasks();
-    setTasks([...updatedTasks]);
+    setLoading(true);
+    setError(null);
+
+    try {
+      await taskService.deleteTask(id);
+      const updatedTasks = await taskService.getTasks();
+      setTasks([...updatedTasks]);
+    } catch (err) {
+      console.error(err);
+      setError((err as Error)?.message || "Failed to delete task");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleTask = async (id: number) => {
     const task = tasks.find((t) => t.id === id);
 
     if (!task) return;
-    await taskService.updateTask({ ...task, completed: !task.completed, });
-    const updatedTasks = await taskService.getTasks();
-    setTasks([...updatedTasks]);
+    setLoading(true);
+    setError(null);
+
+    try {
+      await taskService.updateTask({ ...task, completed: !task.completed });
+      const updatedTasks = await taskService.getTasks();
+      setTasks([...updatedTasks]);
+    } catch (err) {
+      console.error(err);
+      setError((err as Error)?.message || "Failed to update task");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateTask = async (
@@ -55,19 +97,38 @@ export default function Home() {
     const task = tasks.find((t) => t.id === id);
 
     if (!task) return;
-    await taskService.updateTask({ ...task, text, deadline, });
-    const updatedTasks = await taskService.getTasks();
-    setTasks([...updatedTasks]);
+    setLoading(true);
+    setError(null);
+
+    try {
+      await taskService.updateTask({ ...task, text, deadline });
+      const updatedTasks = await taskService.getTasks();
+      setTasks([...updatedTasks]);
+    } catch (err) {
+      console.error(err);
+      setError((err as Error)?.message || "Failed to update task");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const removeBook = async (id: number) => {
     const task = tasks.find((t) => t.id === id);
 
     if (!task) return;
-    await taskService.updateTask({...task, book: undefined,});
+    setLoading(true);
+    setError(null);
 
-    const updatedTasks = await taskService.getTasks();
-    setTasks([...updatedTasks]);
+    try {
+      await taskService.updateTask({ ...task, book: undefined });
+      const updatedTasks = await taskService.getTasks();
+      setTasks([...updatedTasks]);
+    } catch (err) {
+      console.error(err);
+      setError((err as Error)?.message || "Failed to remove book");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const pendingTasks = totalTasks - completedTasks;
@@ -112,9 +173,19 @@ export default function Home() {
       book,
     };
 
-    await taskService.createTask(task);
-    const updatedTasks = await taskService.getTasks();
-    setTasks([...updatedTasks]);
+    setLoading(true);
+    setError(null);
+
+    try {
+      await taskService.createTask(task);
+      const updatedTasks = await taskService.getTasks();
+      setTasks([...updatedTasks]);
+    } catch (err) {
+      console.error(err);
+      setError((err as Error)?.message || "Failed to add task");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
