@@ -4,21 +4,38 @@ import { useState } from "react";
 
 import styles from "../styles/Todo.module.css";
 
+export interface Book {
+    name: string;
+    url: string;
+}
+
 export interface Todo {
     id: number;
     text: string;
     completed: boolean;
     deadline: string;
+    book?: Book;
 }
 
 interface TodoListProps {
     tasks: Todo[];
-    onDeleteTask: (id: number) => void;
-    onToggleTask: (id: number) => void;
+
+    onDeleteTask: (
+        id: number
+    ) => void;
+
+    onToggleTask: (
+        id: number
+    ) => void;
+
     onUpdateTask: (
         id: number,
         text: string,
         deadline: string
+    ) => void;
+
+    onRemoveBook: (
+        id: number
     ) => void;
 }
 
@@ -27,8 +44,13 @@ export default function TodoList({
     onDeleteTask,
     onToggleTask,
     onUpdateTask,
+    onRemoveBook,
 }: TodoListProps) {
     const today = new Date();
+
+    const [previewUrl, setPreviewUrl] =
+        useState<string | null>(null);
+
     const [editingId, setEditingId] =
         useState<number | null>(null);
 
@@ -45,153 +67,314 @@ export default function TodoList({
     };
 
     return (
-        <div className={styles.list}>
-            {tasks.map((task) => {
-                const isOverdue =
-                    task.deadline &&
-                    !task.completed &&
-                    new Date(task.deadline) < today;
+        <>
+            <div className={styles.list}>
+                {tasks.map((task) => {
+                    const isOverdue =
+                        task.deadline &&
+                        !task.completed &&
+                        new Date(task.deadline) <
+                        today;
 
-                return (
-                    <div
-                        key={task.id}
-                        className={`${styles.taskCard} ${isOverdue ? styles.overdueCard : ""
-                            }`}
-                    >
-                        {editingId === task.id ? (
-                            <div className={styles.editContainer}>
-                                <input
-                                    type="text"
-                                    value={editText}
-                                    onChange={(e) =>
-                                        setEditText(e.target.value)
+                    return (
+                        <div
+                            key={task.id}
+                            className={`${styles.taskCard} ${isOverdue
+                                ? styles.overdueCard
+                                : ""
+                                }`}
+                        >
+                            {editingId === task.id ? (
+                                <div
+                                    className={
+                                        styles.editContainer
                                     }
-                                    className={styles.editInput}
-                                />
+                                >
+                                    <input
+                                        type="text"
+                                        value={editText}
+                                        onChange={(e) =>
+                                            setEditText(
+                                                e.target.value
+                                            )
+                                        }
+                                        className={
+                                            styles.editInput
+                                        }
+                                    />
 
-                                <input
-                                    type="date"
-                                    value={editDeadline}
-                                    onChange={(e) =>
-                                        setEditDeadline(
-                                            e.target.value
-                                        )
-                                    }
-                                    className={styles.editDateInput}
-                                />
+                                    <input
+                                        type="date"
+                                        value={
+                                            editDeadline
+                                        }
+                                        onChange={(e) =>
+                                            setEditDeadline(
+                                                e.target.value
+                                            )
+                                        }
+                                        className={
+                                            styles.editDateInput
+                                        }
+                                    />
 
-                                <div className={styles.actionButtons}>
-                                    <button
-                                        className={styles.saveButton}
-                                        onClick={() => {
-                                            onUpdateTask(
-                                                task.id,
-                                                editText,
-                                                editDeadline
-                                            );
-
-                                            setEditingId(null);
-                                        }}
-                                    >
-                                        Save
-                                    </button>
-
-                                    <button
-                                        className={styles.cancelButton}
-                                        onClick={() =>
-                                            setEditingId(null)
+                                    <div
+                                        className={
+                                            styles.actionButtons
                                         }
                                     >
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <>
-                                <div className={styles.taskHeader}>
-                                    <div>
-                                        <div
+                                        <button
                                             className={
-                                                task.completed
-                                                    ? styles.completed
-                                                    : styles.taskName
+                                                styles.saveButton
                                             }
-                                        >
-                                            {task.text}
-                                        </div>
+                                            onClick={() => {
+                                                onUpdateTask(
+                                                    task.id,
+                                                    editText,
+                                                    editDeadline
+                                                );
 
-                                        <div
+                                                setEditingId(
+                                                    null
+                                                );
+                                            }}
+                                        >
+                                            Save
+                                        </button>
+
+                                        <button
                                             className={
-                                                styles.taskInfo
+                                                styles.cancelButton
+                                            }
+                                            onClick={() =>
+                                                setEditingId(
+                                                    null
+                                                )
                                             }
                                         >
-                                            Status:
-                                            <span
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <div
+                                        className={
+                                            styles.taskHeader
+                                        }
+                                    >
+                                        <div
+                                            className={
+                                                styles.taskDetails
+                                            }
+                                        >
+                                            <div
                                                 className={
                                                     task.completed
-                                                        ? styles.statusCompleted
-                                                        : styles.statusPending
+                                                        ? styles.completed
+                                                        : styles.taskName
                                                 }
                                             >
-                                                {" "}
-                                                {task.completed
-                                                    ? "Completed"
-                                                    : "Pending"}
-                                            </span>
-                                        </div>
+                                                {
+                                                    task.text
+                                                }
+                                            </div>
 
-                                        <div
-                                            className={
-                                                isOverdue
-                                                    ? styles.overdueText
-                                                    : styles.taskInfo
-                                            }
-                                        >
-                                            Deadline:
-                                            {" "}
-                                            {task.deadline}
-                                            {isOverdue &&
-                                                " (Overdue)"}
+                                            <div
+                                                className={
+                                                    styles.taskInfo
+                                                }
+                                            >
+                                                Status:
+                                                <span
+                                                    className={
+                                                        task.completed
+                                                            ? styles.statusCompleted
+                                                            : styles.statusPending
+                                                    }
+                                                >
+                                                    {" "}
+                                                    {task.completed
+                                                        ? "Completed"
+                                                        : "Pending"}
+                                                </span>
+                                            </div>
+
+                                            <div
+                                                className={
+                                                    isOverdue
+                                                        ? styles.overdueText
+                                                        : styles.taskInfo
+                                                }
+                                            >
+                                                Deadline:
+                                                {" "}
+                                                {
+                                                    task.deadline
+                                                }
+
+                                                {isOverdue &&
+                                                    " (Overdue)"}
+                                            </div>
+
+                                            {task.book && (
+                                                <div
+                                                    className={
+                                                        styles.bookInfo
+                                                    }
+                                                >
+                                                    📕{" "}
+                                                    {
+                                                        task
+                                                            .book
+                                                            .name
+                                                    }
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
-                                    <input
-                                        type="checkbox"
-                                        checked={task.completed}
-                                        onChange={() =>
-                                            onToggleTask(task.id)
-                                        }
-                                    />
-                                </div>
-
-                                <div
-                                    className={styles.actionButtons}
-                                >
-                                    <button
-                                        className={styles.editButton}
-                                        onClick={() =>
-                                            startEditing(task)
-                                        }
-                                    >
-                                        Edit
-                                    </button>
-
-                                    <button
+                                    <div
                                         className={
-                                            styles.deleteButton
-                                        }
-                                        onClick={() =>
-                                            onDeleteTask(task.id)
+                                            styles.checkboxRow
                                         }
                                     >
-                                        Delete
-                                    </button>
-                                </div>
-                            </>
-                        )}
+                                        <label>
+                                            <input
+                                                type="checkbox"
+                                                checked={
+                                                    task.completed
+                                                }
+                                                onChange={() =>
+                                                    onToggleTask(
+                                                        task.id
+                                                    )
+                                                }
+                                            />
+                                            {" "}
+                                            Complete
+                                        </label>
+                                    </div>
+
+                                    {task.book && (
+                                        <div
+                                            className={
+                                                styles.bookButtons
+                                            }
+                                        >
+                                            <button
+                                                className={
+                                                    styles.bookButton
+                                                }
+                                                onClick={() =>
+                                                    window.open(
+                                                        task.book?.url,
+                                                        "_blank"
+                                                    )
+                                                }
+                                            >
+                                                Read Book
+                                            </button>
+
+                                            <button
+                                                className={
+                                                    styles.bookButton
+                                                }
+                                                onClick={() =>
+                                                    setPreviewUrl(
+                                                        task.book?.url ||
+                                                        null
+                                                    )
+                                                }
+                                            >
+                                                Preview
+                                            </button>
+
+                                            <button
+                                                className={
+                                                    styles.bookButton
+                                                }
+                                                onClick={() =>
+                                                    onRemoveBook(
+                                                        task.id
+                                                    )
+                                                }
+                                            >
+                                                Remove Book
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    <div
+                                        className={
+                                            styles.actionButtons
+                                        }
+                                    >
+                                        <button
+                                            className={
+                                                styles.editButton
+                                            }
+                                            onClick={() =>
+                                                startEditing(
+                                                    task
+                                                )
+                                            }
+                                        >
+                                            Edit
+                                        </button>
+
+                                        <button
+                                            className={
+                                                styles.deleteButton
+                                            }
+                                            onClick={() =>
+                                                onDeleteTask(
+                                                    task.id
+                                                )
+                                            }
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+
+            {previewUrl && (
+                <div className={styles.modal}>
+                    <div
+                        className={
+                            styles.modalContent
+                        }
+                    >
+                        <button
+                            className={
+                                styles.closeButton
+                            }
+                            onClick={() =>
+                                setPreviewUrl(
+                                    null
+                                )
+                            }
+                        >
+                            Close
+                        </button>
+
+                        <iframe
+                            src={previewUrl}
+                            title="PDF Preview"
+                            style={{
+                                width: "100%",
+                                height: "600px",
+                                border: "none",
+                            }}
+                        />
                     </div>
-                );
-            })}
-        </div>
+                </div>
+            )}
+        </>
     );
 }

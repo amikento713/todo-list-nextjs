@@ -40,13 +40,26 @@ export default function Home() {
 
   const addTask = (
     newTask: string,
-    deadline: string
+    deadline: string,
+    selectedBook: File | null
   ) => {
+    let book;
+
+    if (selectedBook) {
+      book = {
+        name: selectedBook.name,
+        url: URL.createObjectURL(
+          selectedBook
+        ),
+      };
+    }
+
     const task: Todo = {
       id: Date.now(),
       text: newTask,
       completed: false,
       deadline,
+      book,
     };
 
     setTasks([...tasks, task]);
@@ -87,6 +100,22 @@ export default function Home() {
             ...task,
             completed:
               !task.completed,
+          }
+          : task
+    );
+
+    setTasks(updatedTasks);
+  };
+
+  const removeBook = (
+    taskId: number
+  ) => {
+    const updatedTasks = tasks.map(
+      (task) =>
+        task.id === taskId
+          ? {
+            ...task,
+            book: undefined,
           }
           : task
     );
@@ -169,6 +198,7 @@ export default function Home() {
           onDeleteTask={deleteTask}
           onToggleTask={toggleTask}
           onUpdateTask={updateTask}
+          onRemoveBook={removeBook}
         />
       </div>
     </main>
