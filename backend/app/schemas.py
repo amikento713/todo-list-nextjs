@@ -2,16 +2,12 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-class Book(BaseModel):
-    name: str
-    url: str
-
-
 class TaskBase(BaseModel):
-    text: str
+    # Accept either `title` (preferred) or `text` (legacy frontend key).
+    title: Optional[str] = None
+    text: Optional[str] = None
     completed: bool = False
     deadline: str
-    book: Optional[Book] = None
 
 
 class TaskCreate(TaskBase):
@@ -19,14 +15,17 @@ class TaskCreate(TaskBase):
 
 
 class TaskUpdate(BaseModel):
+    title: Optional[str] = None
     text: Optional[str] = None
     completed: Optional[bool] = None
     deadline: Optional[str] = None
-    book: Optional[Book] = None
 
 
-class TaskResponse(TaskBase):
+class TaskResponse(BaseModel):
     id: int
+    title: str
+    completed: bool
+    deadline: str
 
     class Config:
         orm_mode = True

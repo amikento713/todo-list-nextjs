@@ -18,4 +18,8 @@ Endpoints:
 - `PUT /tasks/{id}` - update task
 - `DELETE /tasks/{id}` - delete task
 
-Storage: in-memory list (reset on restart). CORS configured for localhost:3000.
+Storage: SQLite database `todo.db` (created automatically). CORS configured for localhost:3000.
+
+Notes on migrations:
+- This scaffold creates tables automatically via SQLAlchemy's `Base.metadata.create_all()` which is convenient for development.
+- For schema migrations in production, use Alembic or a similar tool to generate and apply migration scripts rather than `create_all`.

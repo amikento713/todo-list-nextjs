@@ -1,60 +1,68 @@
-from fastapi import APIRouter, HTTPException
-from typing import List, Optional
-import time
+from fastapi import APIRouter, HTTPException, Depends
+from typing import List
+from sqlalchemy.orm import Session
 
-from app.models import Task
-from app.schemas import (
-    TaskCreate,
-    TaskResponse,
-    TaskUpdate,
-)
+from app import models, schemas
+from app.db import SessionLocal, engine
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
-# In-memory storage
-_in_memory_tasks: List[Task] = []
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
-def _find_index(task_id: int) -> Optional[int]:
-    for i, t in enumerate(_in_memory_tasks):
-        if t.id == task_id:
-            return i
-    return None
+@router.get("/", response_model=List[schemas.TaskResponse])
+def get_tasks(db: Session = Depends(get_db)):
+    return db.query(models.Task).all()
 
 
-@router.get("/", response_model=List[TaskResponse])
-def get_tasks():
-    return _in_memory_tasks
+@router.post("/", response_model=schemas.TaskResponse, status_code=201)
+def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
+    # Accept legacy `text` field from frontend by falling back
+    title = task.title or task.text
+    if not title:
+        raise HTTPException(status_code=400, detail="Title is required")
+
+    db_task = models.Task(title=title, completed=task.completed, deadline=task.deadline)
+    db.add(db_task)
+    db.commit()
+    db.refresh(db_task)
+    return db_task
 
 
-@router.post("/", response_model=TaskResponse, status_code=201)
-def create_task(task: TaskCreate):
-    new_id = int(time.time() * 1000)
-    t = Task(id=new_id, **task.dict())
-    _in_memory_tasks.append(t)
-    return t
-
-
-@router.put("/{task_id}", response_model=TaskResponse)
-def update_task(task_id: int, task: TaskUpdate):
-    idx = _find_index(task_id)
-    if idx is None:
+@router.put("/{task_id}", response_model=schemas.TaskResponse)
+def update_task(task_id: int, task: schemas.TaskUpdate, db: Session = Depends(get_db)):
+    db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
+    if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    existing = _in_memory_tasks[idx]
-    update_data = task.dict(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(existing, key, value)
+    # Prefer explicit `title`, fallback to legacy `text`
+    if task.title is not None or task.text is not None:
+        db_task.title = task.title or task.text or db_task.title
 
-    _in_memory_tasks[idx] = existing
-    return existing
+    if task.completed is not None:
+        db_task.completed = task.completed
+
+    if task.deadline is not None:
+        db_task.deadline = task.deadline
+
+    db.add(db_task)
+    db.commit()
+    db.refresh(db_task)
+    return db_task
 
 
 @router.delete("/{task_id}", status_code=204)
-def delete_task(task_id: int):
-    idx = _find_index(task_id)
-    if idx is None:
+def delete_task(task_id: int, db: Session = Depends(get_db)):
+    db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
+    if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    _in_memory_tasks.pop(idx)
+    db.delete(db_task)
+    db.commit()
     return

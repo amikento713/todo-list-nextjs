@@ -1,11 +1,11 @@
-from dataclasses import dataclass
-from typing import Optional, Dict
+from sqlalchemy import Column, Integer, String, Boolean
+from app.db import Base
 
 
-@dataclass
-class Task:
-    id: int
-    text: str
-    completed: bool
-    deadline: str
-    book: Optional[Dict[str, str]] = None
+class Task(Base):
+    __tablename__ = "tasks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    completed = Column(Boolean, default=False)
+    deadline = Column(String, nullable=False)

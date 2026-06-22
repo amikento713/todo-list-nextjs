@@ -20,3 +20,8 @@ app.add_middleware(
 )
 
 app.include_router(tasks_router)
+
+# Create database tables on startup (simple for dev)
+from app.db import Base, engine
+
+Base.metadata.create_all(bind=engine)
