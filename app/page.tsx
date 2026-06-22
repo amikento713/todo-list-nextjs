@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import TodoForm from "../components/TodoForm";
-import TodoList, {
-  Todo,
-} from "../components/TodoList";
+import TodoList from "../components/TodoList";
+import { Task } from "../types/task";
 import styles from "../styles/Todo.module.css";
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Todo[]>(
+  const [tasks, setTasks] = useState<Task[]>(
     []
   );
 
@@ -54,7 +53,7 @@ export default function Home() {
       };
     }
 
-    const task: Todo = {
+    const task: Task = {
       id: Date.now(),
       text: newTask,
       completed: false,

@@ -276,15 +276,28 @@
 
 .taskCard {
     background: white;
-    border-radius: 12px;
-
-    padding: 16px;
-    margin-bottom: 12px;
 
     border: 1px solid #e5e7eb;
 
+    border-radius: 14px;
+
+    padding: 18px;
+
+    margin-bottom: 18px;
+
     box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.06);
+        0 2px 8px rgba(0, 0, 0, 0.05);
+
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
+}
+
+.taskCard:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
 .taskHeader {
@@ -326,7 +339,14 @@
 
 .actionButtons {
     display: flex;
-    gap: 8px;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.editButton,
+.deleteButton,
+.bookButton {
+    min-width: 100px;
 }
 
 .statusPanel {
@@ -342,175 +362,243 @@
 }
 
 .statCard {
-  background: white;
-  border: none;
-  cursor: pointer;
+    background: white;
+    border: none;
+    cursor: pointer;
 
-  padding: 16px;
-  border-radius: 12px;
+    padding: 16px;
+    border-radius: 12px;
 
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
 }
 
 .statCard:hover {
-  transform: translateY(-2px);
+    transform: translateY(-2px);
 
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.12);
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .activeStatCard {
-  border: 2px solid #3b82f6;
+    border: 2px solid #3b82f6;
 
-  background-color: #eff6ff;
+    background-color: #eff6ff;
 }
 
 .filterTitle {
-  margin-bottom: 16px;
-  color: #374151;
+    margin-bottom: 16px;
+    color: #374151;
 }
 
 .bookSection {
-  margin-top: 12px;
+    margin-top: 12px;
 }
 
 .bookButtons {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
 }
 
-.bookButtons button {
-  padding: 8px 12px;
-  cursor: pointer;
+.bookButton {
+    border: none;
+    border-radius: 8px;
+
+    padding: 10px 16px;
+
+    cursor: pointer;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.bookButton:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .modal {
-  position: fixed;
+    position: fixed;
 
-  inset: 0;
+    inset: 0;
 
-  background: rgba(
-    0,
-    0,
-    0,
-    0.5
-  );
+    background: rgba(0,
+            0,
+            0,
+            0.5);
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-  z-index: 999;
+    z-index: 999;
 }
 
 .modalContent {
-  background: white;
+    background: white;
 
-  width: 90%;
-  max-width: 900px;
+    width: 90%;
+    max-width: 900px;
 
-  padding: 20px;
+    padding: 20px;
 
-  border-radius: 12px;
+    border-radius: 12px;
 }
 
 .closeButton {
-  margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 .fileInput {
-  flex: 1;
+    flex: 1;
 
-  padding: 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
 
-  background-color: white;
+    background-color: white;
 
-  font-size: 14px;
-  cursor: pointer;
+    font-size: 14px;
+    cursor: pointer;
 }
 
 .fileInput::file-selector-button {
-  margin-right: 10px;
+    margin-right: 10px;
 
-  padding: 8px 12px;
+    padding: 8px 12px;
 
-  border: none;
-  border-radius: 6px;
+    border: none;
+    border-radius: 6px;
 
-  background-color: #f3f4f6;
+    background-color: #f3f4f6;
 
-  cursor: pointer;
+    cursor: pointer;
 
-  transition: background-color 0.2s;
+    transition: background-color 0.2s;
 }
 
 .fileInput::file-selector-button:hover {
-  background-color: #e5e7eb;
+    background-color: #e5e7eb;
 }
 
 .form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .inputRow {
-  display: flex;
-  gap: 12px;
+    display: flex;
+    gap: 12px;
 }
 
 .uploadRow {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .uploadLabel {
-  font-size: 14px;
-  color: #6b7280;
+    font-size: 14px;
+    color: #6b7280;
 }
 
 .modal {
-  position: fixed;
-  inset: 0;
+    position: fixed;
+    inset: 0;
 
-  background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-  z-index: 1000;
+    z-index: 1000;
 }
 
 .modalContent {
-  background: white;
+    background: white;
 
-  width: 90%;
-  max-width: 1000px;
+    width: 90%;
+    max-width: 1000px;
 
-  padding: 20px;
+    padding: 20px;
 
-  border-radius: 12px;
+    border-radius: 12px;
 }
 
 .closeButton {
-  background: #ef4444;
-  color: white;
+    background: #ef4444;
+    color: white;
 
-  border: none;
+    border: none;
 
-  padding: 8px 14px;
+    padding: 8px 14px;
 
-  border-radius: 8px;
+    border-radius: 8px;
 
-  cursor: pointer;
+    cursor: pointer;
 
-  margin-bottom: 12px;
+    margin-bottom: 12px;
+}
+
+.bookInfo {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 8px 12px;
+
+    border-radius: 999px;
+
+    background: #eff6ff;
+
+    color: #1d4ed8;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    margin-top: 8px;
+}
+
+.checkboxRow {
+    margin-top: 8px;
+}
+
+.readButton {
+    background: #2563eb;
+    color: white;
+}
+
+.readButton:hover {
+    background: #1d4ed8;
+}
+
+.previewButton {
+    background: #10b981;
+    color: white;
+}
+
+.previewButton:hover {
+    background: #059669;
+}
+
+.removeBookButton {
+    background: #ef4444;
+    color: white;
+}
+
+.removeBookButton:hover {
+    background: #dc2626;
 }
