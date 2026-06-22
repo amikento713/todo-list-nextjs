@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import TodoForm from "../components/TodoForm";
-import TodoList, {
-  Todo,
-} from "../components/TodoList";
+import TodoList from "../components/TodoList";
+import { Task } from "../types/task";
 import styles from "../styles/Todo.module.css";
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Todo[]>(
+  const [tasks, setTasks] = useState<Task[]>(
     []
   );
 
@@ -40,13 +39,26 @@ export default function Home() {
 
   const addTask = (
     newTask: string,
-    deadline: string
+    deadline: string,
+    selectedBook: File | null
   ) => {
-    const task: Todo = {
+    let book;
+
+    if (selectedBook) {
+      book = {
+        name: selectedBook.name,
+        url: URL.createObjectURL(
+          selectedBook
+        ),
+      };
+    }
+
+    const task: Task = {
       id: Date.now(),
       text: newTask,
       completed: false,
       deadline,
+      book,
     };
 
     setTasks([...tasks, task]);
@@ -87,6 +99,22 @@ export default function Home() {
             ...task,
             completed:
               !task.completed,
+          }
+          : task
+    );
+
+    setTasks(updatedTasks);
+  };
+
+  const removeBook = (
+    taskId: number
+  ) => {
+    const updatedTasks = tasks.map(
+      (task) =>
+        task.id === taskId
+          ? {
+            ...task,
+            book: undefined,
           }
           : task
     );
@@ -169,6 +197,7 @@ export default function Home() {
           onDeleteTask={deleteTask}
           onToggleTask={toggleTask}
           onUpdateTask={updateTask}
+          onRemoveBook={removeBook}
         />
       </div>
     </main>

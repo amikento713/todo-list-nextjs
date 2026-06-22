@@ -6,7 +6,8 @@ import styles from "../styles/Todo.module.css";
 interface TodoFormProps {
     onAddTask: (
         task: string,
-        deadline: string
+        deadline: string,
+        book: File | null
     ) => void;
 }
 
@@ -14,6 +15,9 @@ export default function TodoForm({
     onAddTask,
 }: TodoFormProps) {
     const [task, setTask] = useState("");
+
+    const [selectedBook, setSelectedBook] =
+        useState<File | null>(null);
 
     const getTomorrowDate = () => {
         const tomorrow = new Date();
@@ -37,10 +41,14 @@ export default function TodoForm({
 
         if (!task.trim()) return;
 
-        onAddTask(task, deadline);
+        onAddTask(
+            task,
+            deadline,
+            selectedBook
+        );
 
         setTask("");
-
+        setSelectedBook(null);
         // Reset deadline to tomorrow
         setDeadline(getTomorrowDate());
     };
@@ -50,31 +58,70 @@ export default function TodoForm({
             className={styles.form}
             onSubmit={handleSubmit}
         >
-            <input
-                type="text"
-                placeholder="Enter a task"
-                value={task}
-                onChange={(e) =>
-                    setTask(e.target.value)
-                }
-                className={styles.input}
-            />
+            <div className={styles.inputRow}>
+                <input
+                    type="text"
+                    placeholder="Enter a task"
+                    value={task}
+                    onChange={(e) =>
+                        setTask(e.target.value)
+                    }
+                    className={styles.input}
+                />
 
-            <input
-                type="date"
-                value={deadline}
-                onChange={(e) =>
-                    setDeadline(e.target.value)
-                }
-                className={styles.dateInput}
-            />
+                <input
+                    type="date"
+                    value={deadline}
+                    onChange={(e) =>
+                        setDeadline(e.target.value)
+                    }
+                    className={styles.dateInput}
+                />
 
-            <button
-                type="submit"
-                className={styles.button}
-            >
-                Add
-            </button>
+                <button
+                    type="submit"
+                    className={styles.button}
+                >
+                    Add
+                </button>
+            </div>
+
+            <div className={styles.uploadRow}>
+                <label
+                    htmlFor="book-upload"
+                    className={styles.uploadLabel}
+                >
+                    📕 Attach PDF (Optional)
+                </label>
+
+                <input
+                    id="book-upload"
+                    type="file"
+                    accept=".pdf"
+                    className={styles.fileInput}
+                    onChange={(e) => {
+                        const file =
+                            e.target.files?.[0] || null;
+
+                        if (!file) {
+                            setSelectedBook(null);
+                            return;
+                        }
+
+                        if (
+                            file.type !== "application/pdf"
+                        ) {
+                            alert(
+                                "Only PDF files are allowed."
+                            );
+
+                            return;
+                        }
+
+                        setSelectedBook(file);
+                    }}
+                />
+            </div>
         </form>
     );
 }
