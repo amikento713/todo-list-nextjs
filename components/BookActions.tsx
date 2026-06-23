@@ -4,26 +4,44 @@ import { Book } from "../types/task";
 import styles from "../styles/Todo.module.css";
 
 interface BookActionsProps {
-  taskId: number;
   book: Book;
   onPreview: (url: string) => void;
+  onRemove: () => void;
+  disabled?: boolean;
 }
 
 export default function BookActions({
-  taskId,
   book,
   onPreview,
+  onRemove,
+  disabled = false,
 }: BookActionsProps) {
   return (
     <div className={styles.bookButtons}>
       <button
+        type="button"
         className={`${styles.bookButton} ${styles.previewButton}`}
         onClick={() => onPreview(book.url)}
-      >👀</button>
+        disabled={disabled}
+      >
+        Preview
+      </button>
       <button
+        type="button"
         className={`${styles.bookButton} ${styles.readButton}`}
-        onClick={() => window.open(book.url, "_blank")}
-      >📖</button>
+        onClick={() => window.open(book.url, "_blank", "noopener,noreferrer")}
+        disabled={disabled}
+      >
+        Open
+      </button>
+      <button
+        type="button"
+        className={`${styles.bookButton} ${styles.deleteIcon}`}
+        onClick={onRemove}
+        disabled={disabled}
+      >
+        Remove
+      </button>
     </div>
   );
 }

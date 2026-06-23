@@ -1,30 +1,20 @@
 "use client";
 
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 import { Task } from "../types/task";
-
+import { isOverdue } from "../lib/taskUtils";
 import styles from "../styles/Todo.module.css";
-
 import EditTaskForm from "./EditTaskForm";
 import BookActions from "./BookActions";
 
 interface TodoCardProps {
   task: Task;
-
   onDeleteTask: (id: number) => void;
-
   onToggleTask: (id: number) => void;
-
-  onUpdateTask: (
-    id: number,
-    text: string,
-    deadline: string
-  ) => void;
-
+  onUpdateTask: (id: number, text: string, deadline: string) => void;
   onRemoveBook: (id: number) => void;
-
   onPreview: (url: string) => void;
+  disabled?: boolean;
 }
 
 export default function TodoCard({
@@ -34,113 +24,74 @@ export default function TodoCard({
   onUpdateTask,
   onRemoveBook,
   onPreview,
+  disabled = false,
 }: TodoCardProps) {
-  const today = new Date();
+  const overdue = isOverdue(task.deadline, task.completed);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(task.text);
+  const [editDeadline, setEditDeadline] = useState(task.deadline);
 
-  const isOverdue =
-    task.deadline &&
-    !task.completed &&
-    new Date(task.deadline) < today;
-
-  const [isEditing, setIsEditing] =
-    useState(false);
-
-  const [editText, setEditText] =
-    useState(task.text);
-
-  const [editDeadline, setEditDeadline] =
-    useState(task.deadline);
+  useEffect(() => {
+    if (!isEditing) {
+      setEditText(task.text);
+      setEditDeadline(task.deadline);
+    }
+  }, [task.text, task.deadline, isEditing]);
 
   return (
     <div
-      className={`${styles.taskCard} ${isOverdue
-        ? styles.overdueCard
-        : ""
-        }`}
+      className={`${styles.taskCard} ${overdue ? styles.overdueCard : ""}`}
     >
       {isEditing ? (
         <EditTaskForm
           text={editText}
           deadline={editDeadline}
           onTextChange={setEditText}
-          onDeadlineChange={
-            setEditDeadline
-          }
+          onDeadlineChange={setEditDeadline}
           onSave={() => {
-            onUpdateTask(
-              task.id,
-              editText,
-              editDeadline
-            );
-
+            onUpdateTask(task.id, editText.trim(), editDeadline);
             setIsEditing(false);
           }}
-          onCancel={() =>
-            setIsEditing(false)
-          }
+          onCancel={() => {
+            setEditText(task.text);
+            setEditDeadline(task.deadline);
+            setIsEditing(false);
+          }}
+          disabled={disabled}
         />
       ) : (
         <>
-          {/* Header */}
-          <div
-            className={
-              styles.cardHeader
-            }
-          >
-            <div
-              className={
-                task.completed
-                  ? styles.completed
-                  : styles.taskName
-              }
-            >
-              {task.text}
+          <div className={styles.cardHeader}>
+            <div className={styles.taskName}>
+              {`Task #${task.id}: ${task.text} (${task.deadline})`}
             </div>
 
-            <div
-              className={
-                styles.headerActions
-              }
-            >
+            <div className={styles.headerActions}>
               <button
-                className={
-                  styles.iconButton
-                }
-                onClick={() =>
-                  setIsEditing(true)
-                }
+                type="button"
+                className={styles.iconButton}
+                onClick={() => setIsEditing(true)}
                 title="Edit Task"
+                disabled={disabled}
               >
-                ✏️
+                Edit
               </button>
 
               <button
+                type="button"
                 className={`${styles.iconButton} ${styles.deleteIcon}`}
-                onClick={() =>
-                  onDeleteTask(
-                    task.id
-                  )
-                }
+                onClick={() => onDeleteTask(task.id)}
                 title="Delete Task"
+                disabled={disabled}
               >
-                🗑️
+                Delete
               </button>
             </div>
           </div>
 
-          {/* Details */}
-          <div
-            className={
-              styles.taskDetails
-            }
-          >
-            <div
-              className={
-                styles.taskInfo
-              }
-            >
-              Status:
-              {" "}
+          <div className={styles.taskDetails}>
+            <div className={styles.taskInfo}>
+              Status:{" "}
               <span
                 className={
                   task.completed
@@ -148,57 +99,40 @@ export default function TodoCard({
                     : styles.statusPending
                 }
               >
-                {task.completed
-                  ? "Completed"
-                  : "Pending"}
+                {task.completed ? "Completed" : "Pending"}
               </span>
             </div>
 
             <div
               className={
-                isOverdue
-                  ? styles.overdueText
-                  : styles.taskInfo
+                overdue ? styles.overdueText : styles.taskInfo
               }
             >
-              Deadline:
-              {" "}
-              {task.deadline}
-
-              {isOverdue &&
-                " (Overdue)"}
+              Deadline: {task.deadline}
+              {overdue && " (Overdue)"}
             </div>
 
             {task.book && (
-              <>
-                <div className={styles.bookPart}>
-                  <div className={styles.bookInfo}>
-                    📕{" "}
-                    {task.book.name}
-                  </div>
-                  <BookActions
-                    taskId={task.id}
-                    book={task.book}
-                    onPreview={onPreview}
-                  />
-                </div>
-              </>
+              <div className={styles.bookPart}>
+                <div className={styles.bookInfo}>{task.book.name}</div>
+                <BookActions
+                  book={task.book}
+                  onPreview={onPreview}
+                  onRemove={() => onRemoveBook(task.id)}
+                  disabled={disabled}
+                />
+              </div>
             )}
           </div>
 
-          {/* Complete Checkbox */}
-          <div
-            className={
-              styles.checkboxRow
-            }
-          >
+          <div className={styles.checkboxRow}>
             <label>
               <input
                 type="checkbox"
                 checked={task.completed}
                 onChange={() => onToggleTask(task.id)}
-              />
-              {" "}
+                disabled={disabled}
+              />{" "}
               Complete
             </label>
           </div>

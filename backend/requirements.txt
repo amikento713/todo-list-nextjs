@@ -4,3 +4,5 @@ SQLAlchemy
 python-multipart
 python-jose[cryptography]
 passlib[bcrypt]
+httpx2
+pytest

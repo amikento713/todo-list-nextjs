@@ -1,127 +1,158 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import styles from "../styles/Todo.module.css";
+import { MAX_TASK_TEXT_LENGTH } from "../types/task";
 
 interface TodoFormProps {
-    onAddTask: (
-        task: string,
-        deadline: string,
-        book: File | null
-    ) => void;
+  onAddTask: (
+    task: string,
+    deadline: string,
+    book: File | null
+  ) => void | Promise<void>;
+  disabled?: boolean;
 }
 
-export default function TodoForm({
-    onAddTask,
-}: TodoFormProps) {
-    const [task, setTask] = useState("");
+export default function TodoForm({ onAddTask, disabled = false }: TodoFormProps) {
+  const [task, setTask] = useState("");
+  const [selectedBook, setSelectedBook] = useState<File | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [selectedBook, setSelectedBook] =
-        useState<File | null>(null);
+  const getTomorrowDate = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split("T")[0];
+  };
 
-    const getTomorrowDate = () => {
-        const tomorrow = new Date();
+  const [deadline, setDeadline] = useState(getTomorrowDate());
 
-        tomorrow.setDate(
-            tomorrow.getDate() + 1
-        );
+  const resetFileInput = () => {
+    setSelectedBook(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
-        return tomorrow
-            .toISOString()
-            .split("T")[0];
-    };
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setFormError(null);
 
-    const [deadline, setDeadline] =
-        useState(getTomorrowDate());
+    const trimmedTask = task.trim();
+    if (!trimmedTask) {
+      setFormError("Task description is required");
+      return;
+    }
 
-    const handleSubmit = (
-        e: React.FormEvent<HTMLFormElement>
-    ) => {
-        e.preventDefault();
+    if (trimmedTask.length > MAX_TASK_TEXT_LENGTH) {
+      setFormError(
+        `Task description must be at most ${MAX_TASK_TEXT_LENGTH} characters`
+      );
+      return;
+    }
 
-        if (!task.trim()) return;
+    if (!deadline) {
+      setFormError("Deadline is required");
+      return;
+    }
 
-        onAddTask(
-            task,
-            deadline,
-            selectedBook
-        );
+    await onAddTask(trimmedTask, deadline, selectedBook);
+    setTask("");
+    resetFileInput();
+    setDeadline(getTomorrowDate());
+  };
 
-        setTask("");
-        setSelectedBook(null);
-        // Reset deadline to tomorrow
-        setDeadline(getTomorrowDate());
-    };
+  return (
+    <form className={styles.form} onSubmit={handleSubmit}>
+      <div className={styles.inputRow}>
+        <div className={styles.fieldGroup}>
+          <label htmlFor="task-description">Task Description</label>
+          <input
+            id="task-description"
+            type="text"
+            placeholder="Task Description"
+            value={task}
+            maxLength={MAX_TASK_TEXT_LENGTH}
+            onChange={(e) => setTask(e.target.value)}
+            className={styles.input}
+            disabled={disabled}
+          />
+        </div>
 
-    return (
-        <form
-            className={styles.form}
-            onSubmit={handleSubmit}
-        >
-            <div className={styles.inputRow}>
-                <input
-                    type="text"
-                    placeholder="Enter a task"
-                    value={task}
-                    onChange={(e) =>
-                        setTask(e.target.value)
-                    }
-                    className={styles.input}
-                />
+        <div className={styles.fieldGroup}>
+          <label htmlFor="task-deadline">Deadline</label>
+          <input
+            id="task-deadline"
+            type="date"
+            value={deadline}
+            onChange={(e) => setDeadline(e.target.value)}
+            className={styles.dateInput}
+            disabled={disabled}
+            required
+          />
+        </div>
+      </div>
 
-                <input
-                    type="date"
-                    value={deadline}
-                    onChange={(e) =>
-                        setDeadline(e.target.value)
-                    }
-                    className={styles.dateInput}
-                />
+      <div className={styles.uploadRow}>
+        <div className={styles.uploadHeader}>
+          <label className={styles.uploadLabel} htmlFor="book-upload">
+            Upload PDF (optional)
+          </label>
+          <label
+            htmlFor="book-upload"
+            className={`${styles.bookButton} ${styles.previewButton}`}
+          >
+            Upload PDF
+          </label>
+        </div>
 
-                <button
-                    type="submit"
-                    className={styles.button}
-                >
-                    Add
-                </button>
-            </div>
+        <input
+          id="book-upload"
+          ref={fileInputRef}
+          type="file"
+          accept="application/pdf,.pdf"
+          className={styles.fileInput}
+          disabled={disabled}
+          onChange={(e) => {
+            const file = e.target.files?.[0] || null;
+            setFormError(null);
 
-            <div className={styles.uploadRow}>
-                <label
-                    htmlFor="book-upload"
-                    className={styles.uploadLabel}
-                >
-                    📕 Attach PDF (Optional)
-                </label>
+            if (!file) {
+              setSelectedBook(null);
+              return;
+            }
 
-                <input
-                    id="book-upload"
-                    type="file"
-                    accept=".pdf"
-                    className={styles.fileInput}
-                    onChange={(e) => {
-                        const file =
-                            e.target.files?.[0] || null;
+            if (
+              file.type !== "application/pdf" &&
+              !file.name.toLowerCase().endsWith(".pdf")
+            ) {
+              setFormError("Only PDF files are allowed.");
+              resetFileInput();
+              return;
+            }
 
-                        if (!file) {
-                            setSelectedBook(null);
-                            return;
-                        }
+            if (file.size > 20 * 1024 * 1024) {
+              setFormError("PDF must be 20MB or smaller.");
+              resetFileInput();
+              return;
+            }
 
-                        if (
-                            file.type !== "application/pdf"
-                        ) {
-                            alert(
-                                "Only PDF files are allowed."
-                            );
+            setSelectedBook(file);
+          }}
+        />
 
-                            return;
-                        }
+        {selectedBook && (
+          <div className={styles.selectedFile}>Selected: {selectedBook.name}</div>
+        )}
 
-                        setSelectedBook(file);
-                    }}
-                />
-            </div>
-        </form>
-    );
+        {formError && <div className={styles.formError}>{formError}</div>}
+
+        <div className={styles.submitRow}>
+          <button type="submit" className={styles.button} disabled={disabled}>
+            Add Task
+          </button>
+        </div>
+      </div>
+    </form>
+  );
 }
