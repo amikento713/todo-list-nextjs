@@ -156,27 +156,36 @@ export default function Home() {
   ) => {
     let book;
 
-    if (selectedBook) {
-      book = {
-        name: selectedBook.name,
-        url: URL.createObjectURL(
-          selectedBook
-        ),
-      };
-    }
-
-    const task: Task = {
-      id: Date.now(),
-      text: newTask,
-      completed: false,
-      deadline,
-      book,
-    };
-
     setLoading(true);
     setError(null);
 
     try {
+      if (selectedBook) {
+        const form = new FormData();
+        form.append("file", selectedBook);
+
+        const res = await fetch("http://localhost:8000/upload-book", {
+          method: "POST",
+          body: form,
+        });
+
+        if (!res.ok) {
+          const txt = await res.text().catch(() => "");
+          throw new Error(txt || res.statusText || "Upload failed");
+        }
+
+        const data = await res.json();
+        book = { name: selectedBook.name, url: data.url };
+      }
+
+      const task: Task = {
+        id: Date.now(),
+        text: newTask,
+        completed: false,
+        deadline,
+        book,
+      };
+
       await taskService.createTask(task);
       const updatedTasks = await taskService.getTasks();
       setTasks([...updatedTasks]);

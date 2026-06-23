@@ -18,7 +18,18 @@ def get_db():
 
 @router.get("/", response_model=List[schemas.TaskResponse])
 def get_tasks(db: Session = Depends(get_db)):
-    return db.query(models.Task).all()
+    tasks = db.query(models.Task).all()
+    result = []
+    for t in tasks:
+        result.append({
+            "id": t.id,
+            "title": t.title,
+            "text": t.title,
+            "completed": t.completed,
+            "deadline": t.deadline,
+            "book": {"name": t.book_name, "url": t.book_url} if t.book_name or t.book_url else None,
+        })
+    return result
 
 
 @router.post("/", response_model=schemas.TaskResponse, status_code=201)
@@ -29,10 +40,20 @@ def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Title is required")
 
     db_task = models.Task(title=title, completed=task.completed, deadline=task.deadline)
+    if task.book:
+        db_task.book_name = task.book.name
+        db_task.book_url = task.book.url
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
-    return db_task
+    return {
+        "id": db_task.id,
+        "title": db_task.title,
+        "text": db_task.title,
+        "completed": db_task.completed,
+        "deadline": db_task.deadline,
+        "book": {"name": db_task.book_name, "url": db_task.book_url} if db_task.book_name or db_task.book_url else None,
+    }
 
 
 @router.put("/{task_id}", response_model=schemas.TaskResponse)
@@ -51,10 +72,22 @@ def update_task(task_id: int, task: schemas.TaskUpdate, db: Session = Depends(ge
     if task.deadline is not None:
         db_task.deadline = task.deadline
 
+    if task.book is not None:
+        # set or clear book metadata
+        db_task.book_name = task.book.name if task.book.name else None
+        db_task.book_url = task.book.url if task.book.url else None
+
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
-    return db_task
+    return {
+        "id": db_task.id,
+        "title": db_task.title,
+        "text": db_task.title,
+        "completed": db_task.completed,
+        "deadline": db_task.deadline,
+        "book": {"name": db_task.book_name, "url": db_task.book_url} if db_task.book_name or db_task.book_url else None,
+    }
 
 
 @router.delete("/{task_id}", status_code=204)
