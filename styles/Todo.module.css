@@ -111,6 +111,7 @@
   border: 1px solid #e6e9ef;
   font-size: 14px;
   outline: none;
+  height: 50px;
 }
 
 .input:focus {
@@ -144,6 +145,10 @@
 
 .fileInput {
   display: none;
+}
+
+#task-prioirity {
+  height: 50px;
 }
 
 .selectedFile {
