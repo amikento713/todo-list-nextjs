@@ -2,6 +2,13 @@ import { Task } from "../types/task";
 
 const BASE_URL = "http://localhost:8000/tasks";
 
+function authHeaders(): Headers {
+  const headers = new Headers();
+  const token = localStorage.getItem("token");
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  return headers;
+}
+
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -20,18 +27,22 @@ async function handleResponse<T>(res: Response): Promise<T> {
 
 export const taskService = {
   async getTasks(): Promise<Task[]> {
+    const headers = authHeaders();
+    headers.set("Accept", "application/json");
     const res = await fetch(BASE_URL, {
       method: "GET",
-      headers: { "Accept": "application/json" },
+      headers,
     });
 
     return handleResponse<Task[]>(res);
   },
 
   async createTask(task: Task): Promise<Task> {
+    const headers = authHeaders();
+    headers.set("Content-Type", "application/json");
     const res = await fetch(BASE_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(task),
     });
 
@@ -39,9 +50,11 @@ export const taskService = {
   },
 
   async updateTask(updatedTask: Task): Promise<Task> {
+    const headers = authHeaders();
+    headers.set("Content-Type", "application/json");
     const res = await fetch(`${BASE_URL}/${updatedTask.id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(updatedTask),
     });
 
@@ -49,8 +62,10 @@ export const taskService = {
   },
 
   async deleteTask(id: number): Promise<void> {
+    const headers = authHeaders();
     const res = await fetch(`${BASE_URL}/${id}`, {
       method: "DELETE",
+      headers,
     });
 
     return handleResponse<void>(res);

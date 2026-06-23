@@ -6,11 +6,15 @@ import TodoList from "../components/TodoList";
 import { Task } from "../types/task";
 import styles from "../styles/Todo.module.css";
 import { taskService } from "../services/taskService";
+import { authService } from "../services/authService";
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
 
   const totalTasks = tasks.length;
 
@@ -20,7 +24,10 @@ export default function Home() {
     ).length;
 
   useEffect(() => {
-    loadTasks();
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("username");
+    setCurrentUser(user);
+    if (token) loadTasks();
   }, []);
 
   const loadTasks = async () => {
@@ -36,6 +43,34 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRegister = async () => {
+    setError(null);
+    try {
+      await authService.register(username, password);
+      setCurrentUser(username);
+      await loadTasks();
+    } catch (err) {
+      setError((err as Error)?.message || "Registration failed");
+    }
+  };
+
+  const handleLogin = async () => {
+    setError(null);
+    try {
+      await authService.login(username, password);
+      setCurrentUser(username);
+      await loadTasks();
+    } catch (err) {
+      setError((err as Error)?.message || "Login failed");
+    }
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    setCurrentUser(null);
+    setTasks([]);
   };
 
   const createTask = async (task: Task) => {
@@ -257,7 +292,26 @@ export default function Home() {
             </div>
           </button>
         </div>
-        <TodoForm onAddTask={addTask} />
+        {!currentUser ? (
+          <div style={{ marginBottom: 16 }}>
+            <h3>Login / Register</h3>
+            <input placeholder="username" value={username} onChange={(e) => setUsername(e.target.value)} />
+            <input placeholder="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <div style={{ marginTop: 8 }}>
+              <button onClick={handleLogin} className={styles.button}>Login</button>
+              <button onClick={handleRegister} className={styles.button} style={{ marginLeft: 8 }}>Register</button>
+            </div>
+            {error && <div style={{ color: 'red' }}>{error}</div>}
+          </div>
+        ) : (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>Signed in as {currentUser}</div>
+              <button onClick={handleLogout} className={styles.button}>Logout</button>
+            </div>
+            <TodoForm onAddTask={addTask} />
+          </>
+        )}
         <h3 className={styles.filterTitle}>
           {filter === "all" && "All Tasks"}
 

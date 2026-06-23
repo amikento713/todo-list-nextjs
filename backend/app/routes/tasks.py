@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.db import SessionLocal, engine
+from app.auth import get_current_user
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -17,8 +18,8 @@ def get_db():
 
 
 @router.get("/", response_model=List[schemas.TaskResponse])
-def get_tasks(db: Session = Depends(get_db)):
-    tasks = db.query(models.Task).all()
+def get_tasks(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    tasks = db.query(models.Task).filter(models.Task.owner_id == current_user.id).all()
     result = []
     for t in tasks:
         result.append({
@@ -33,13 +34,13 @@ def get_tasks(db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=schemas.TaskResponse, status_code=201)
-def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
+def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     # Accept legacy `text` field from frontend by falling back
     title = task.title or task.text
     if not title:
         raise HTTPException(status_code=400, detail="Title is required")
 
-    db_task = models.Task(title=title, completed=task.completed, deadline=task.deadline)
+    db_task = models.Task(title=title, completed=task.completed, deadline=task.deadline, owner_id=current_user.id)
     if task.book:
         db_task.book_name = task.book.name
         db_task.book_url = task.book.url
@@ -57,8 +58,8 @@ def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/{task_id}", response_model=schemas.TaskResponse)
-def update_task(task_id: int, task: schemas.TaskUpdate, db: Session = Depends(get_db)):
-    db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
+def update_task(task_id: int, task: schemas.TaskUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    db_task = db.query(models.Task).filter(models.Task.id == task_id, models.Task.owner_id == current_user.id).first()
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
 
@@ -91,8 +92,8 @@ def update_task(task_id: int, task: schemas.TaskUpdate, db: Session = Depends(ge
 
 
 @router.delete("/{task_id}", status_code=204)
-def delete_task(task_id: int, db: Session = Depends(get_db)):
-    db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
+def delete_task(task_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    db_task = db.query(models.Task).filter(models.Task.id == task_id, models.Task.owner_id == current_user.id).first()
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
 
