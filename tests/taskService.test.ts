@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  parseStoredTasks,
-  TaskValidationError,
-} from "../src/services/taskService";
+import { parseStoredTasks } from "../src/lib/taskStorage";
+import { TaskValidationError } from "../src/services/taskService";
 import { CreateTaskInput } from "../src/types/todo";
 
 describe("taskService storage helpers", () => {

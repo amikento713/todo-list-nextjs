@@ -13,7 +13,12 @@ export interface UseLocalStorageResult<T> {
   value: T;
   setValue: (value: SetValueAction<T>) => void;
   removeValue: () => void;
+  reloadValue: () => void;
   isHydrated: boolean;
+}
+
+function isBrowser(): boolean {
+  return typeof window !== "undefined";
 }
 
 function defaultSerializer<T>(value: T): string {
@@ -29,7 +34,7 @@ function readStoredValue<T>(
   initialValue: T,
   deserializer: (value: string) => T
 ): T {
-  if (typeof window === "undefined") {
+  if (!isBrowser()) {
     return initialValue;
   }
 
@@ -51,7 +56,7 @@ function writeStoredValue<T>(
   value: T,
   serializer: (value: T) => string
 ): void {
-  if (typeof window === "undefined") {
+  if (!isBrowser()) {
     return;
   }
 
@@ -63,7 +68,7 @@ function writeStoredValue<T>(
 }
 
 function removeStoredValue(key: string): void {
-  if (typeof window === "undefined") {
+  if (!isBrowser()) {
     return;
   }
 
@@ -86,21 +91,29 @@ export function useLocalStorage<T>(
   const serializerRef = useRef(serializer);
   const deserializerRef = useRef(deserializer);
 
+  // Always start from the server-safe initial value to avoid hydration mismatch.
   const [value, setValueState] = useState<T>(initialValue);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  useEffect(() => {
-    const storedValue = readStoredValue(
+  const hydrateFromStorage = useCallback(() => {
+    if (!isBrowser()) {
+      return initialValueRef.current;
+    }
+
+    return readStoredValue(
       key,
       initialValueRef.current,
       deserializerRef.current
     );
-    setValueState(storedValue);
-    setIsHydrated(true);
   }, [key]);
 
   useEffect(() => {
-    if (!isHydrated) {
+    setValueState(hydrateFromStorage());
+    setIsHydrated(true);
+  }, [hydrateFromStorage]);
+
+  useEffect(() => {
+    if (!isHydrated || !isBrowser()) {
       return;
     }
 
@@ -108,7 +121,7 @@ export function useLocalStorage<T>(
   }, [key, value, isHydrated]);
 
   useEffect(() => {
-    if (!isHydrated) {
+    if (!isHydrated || !isBrowser()) {
       return;
     }
 
@@ -146,10 +159,15 @@ export function useLocalStorage<T>(
     setValueState(initialValueRef.current);
   }, [key]);
 
+  const reloadValue = useCallback(() => {
+    setValueState(hydrateFromStorage());
+  }, [hydrateFromStorage]);
+
   return {
     value,
     setValue,
     removeValue,
+    reloadValue,
     isHydrated,
   };
 }
