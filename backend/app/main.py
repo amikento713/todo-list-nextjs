@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes.tasks import router as tasks_router
+from app.routes.uploads import router as uploads_router
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="Todo API")
 
@@ -20,6 +22,13 @@ app.add_middleware(
 )
 
 app.include_router(tasks_router)
+app.include_router(uploads_router)
+
+# Serve uploaded books at /books
+import os
+uploads_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "uploads"))
+os.makedirs(uploads_path, exist_ok=True)
+app.mount("/books", StaticFiles(directory=uploads_path), name="books")
 
 # Create database tables on startup (simple for dev)
 from app.db import Base, engine
