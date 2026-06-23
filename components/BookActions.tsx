@@ -4,47 +4,43 @@ import { Book } from "../types/task";
 import styles from "../styles/Todo.module.css";
 
 interface BookActionsProps {
-  taskId: number;
   book: Book;
   onPreview: (url: string) => void;
-  onRemoveBook: (
-    taskId: number
-  ) => void;
+  onRemove: () => void;
+  disabled?: boolean;
 }
 
 export default function BookActions({
-  taskId,
   book,
   onPreview,
-  onRemoveBook,
+  onRemove,
+  disabled = false,
 }: BookActionsProps) {
   return (
     <div className={styles.bookButtons}>
       <button
-        className={`${styles.bookButton} ${styles.readButton}`}
-        onClick={() =>
-          window.open(book.url, "_blank")
-        }
-      >
-        📖 Read
-      </button>
-
-      <button
+        type="button"
         className={`${styles.bookButton} ${styles.previewButton}`}
-        onClick={() =>
-          onPreview(book.url)
-        }
+        onClick={() => onPreview(book.url)}
+        disabled={disabled}
       >
-        👀 Preview
+        Preview
       </button>
-
       <button
-        className={`${styles.bookButton} ${styles.removeBookButton}`}
-        onClick={() =>
-          onRemoveBook(taskId)
-        }
+        type="button"
+        className={`${styles.bookButton} ${styles.readButton}`}
+        onClick={() => window.open(book.url, "_blank", "noopener,noreferrer")}
+        disabled={disabled}
       >
-        🗑 Remove
+        Open
+      </button>
+      <button
+        type="button"
+        className={`${styles.bookButton} ${styles.deleteIcon}`}
+        onClick={onRemove}
+        disabled={disabled}
+      >
+        Remove
       </button>
     </div>
   );

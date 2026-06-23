@@ -1,12 +1,14 @@
 export interface Book {
-    name: string;
-    url: string;
+  name: string;
+  url: string;
 }
 
 export interface Task {
-    id: number;
-    text: string;
-    completed: boolean;
-    deadline: string;
-    book?: Book;
+  id: number;
+  text: string;
+  completed: boolean;
+  deadline: string;
+  book?: Book | null;
 }
+
+export const MAX_TASK_TEXT_LENGTH = 500;
