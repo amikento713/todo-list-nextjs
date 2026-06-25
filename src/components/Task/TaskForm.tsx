@@ -139,6 +139,7 @@ export default function TaskForm({
       setError("Deadline is required.");
       return;
     }
+    
 
     setIsSubmitting(true);
 
