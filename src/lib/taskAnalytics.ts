@@ -17,6 +17,7 @@ export function computeTaskOverviewMetrics(tasks: Task[]): TaskOverviewMetrics {
       completed += 1;
       continue;
     }
+    console.log("function:", isDueSoon(task.deadline, task.completed));
 
     if (isDueSoon(task.deadline, task.completed)) {
       dueSoon += 1;
@@ -24,6 +25,7 @@ export function computeTaskOverviewMetrics(tasks: Task[]): TaskOverviewMetrics {
       active += 1;
     }
   }
+  console.log({ active, dueSoon, completed });
 
   return { active, dueSoon, completed };
 }

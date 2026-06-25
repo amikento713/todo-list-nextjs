@@ -227,7 +227,10 @@ export const useDashboardStore = create<DashboardState>()(
       name: STORAGE_KEYS.store,
       storage: createJSONStorage(() => dashboardStorage),
       partialize: (state) => ({
-        tasks: state.tasks,
+        tasks: state.tasks.map((task) => ({
+          ...task,
+          book: task.book ? { name: task.book.name, url: "" } : undefined,
+        })),
         notifications: state.notifications,
         settings: state.settings,
       }),
