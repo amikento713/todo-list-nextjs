@@ -54,6 +54,7 @@ export function isDueSoon(
   }
 
   const daysUntil = daysUntilDeadline(deadline, referenceDate);
+  
   return daysUntil <= 1;
 }
 

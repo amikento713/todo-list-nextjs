@@ -101,47 +101,55 @@ export default function NotificationDrawer({
           {notifications.length === 0 ? (
             <p className={styles.emptyState}>No notifications yet.</p>
           ) : (
-            notifications.map((notification) => (
-              <article
-                key={notification.id}
-                className={`${styles.item} ${
-                  !notification.read ? styles.itemUnread : ""
-                }`}
-              >
-                <div className={styles.itemHeader}>
-                  <h3 className={styles.itemTitle}>{notification.title}</h3>
-                  <time
-                    className={styles.itemTime}
-                    dateTime={notification.createdAt.toISOString()}
-                  >
-                    {formatTimestamp(notification.createdAt)}
-                  </time>
-                </div>
+            notifications.map((notification) => {
+              const createdAt =
+                notification.createdAt instanceof Date
+                  ? notification.createdAt
+                  : new Date(notification.createdAt);
 
-                <p className={styles.itemMessage}>
-                  {stripTaskKey(notification.message)}
-                </p>
+              return (
+                <article
+                  key={notification.id}
+                  className={`${styles.item} ${!notification.read ? styles.itemUnread : ""
+                    }`}
+                >
+                  <div className={styles.itemHeader}>
+                    <h3 className={styles.itemTitle}>{notification.title}</h3>
 
-                <div className={styles.itemActions}>
-                  {!notification.read && (
+                    <time
+                      className={styles.itemTime}
+                      dateTime={createdAt.toISOString()}
+                    >
+                      {formatTimestamp(createdAt)}
+                    </time>
+                  </div>
+
+                  <p className={styles.itemMessage}>
+                    {stripTaskKey(notification.message)}
+                  </p>
+
+                  <div className={styles.itemActions}>
+                    {!notification.read && (
+                      <button
+                        type="button"
+                        className={styles.actionButton}
+                        onClick={() => onMarkRead(notification.id)}
+                      >
+                        Mark as read
+                      </button>
+                    )}
+
                     <button
                       type="button"
-                      className={styles.actionButton}
-                      onClick={() => onMarkRead(notification.id)}
+                      className={`${styles.actionButton} ${styles.deleteButton}`}
+                      onClick={() => onDelete(notification.id)}
                     >
-                      Mark as read
+                      Delete
                     </button>
-                  )}
-                  <button
-                    type="button"
-                    className={`${styles.actionButton} ${styles.deleteButton}`}
-                    onClick={() => onDelete(notification.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </article>
-            ))
+                  </div>
+                </article>
+              );
+            })
           )}
         </div>
       </aside>
